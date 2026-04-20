@@ -40,6 +40,42 @@ function httpsGet(url) {
   } catch (_) {}
 }
 
+// ─── AppState Normalizer ──────────────────────────────────────────────────────
+// shadowx-fca requires { key, value, domain, path, expires }
+// Most export tools (EditThisCookie, J2TEAM, etc.) export { name } not { key }
+// Some also use numeric unix expires instead of a date string — we fix both.
+function normalizeAppState(raw) {
+  if (!Array.isArray(raw)) return raw;
+  return raw.map((c) => {
+    const out = Object.assign({}, c);
+
+    // name → key  (keep both so nothing breaks internally)
+    if (!out.key  && out.name) out.key  = out.name;
+    if (!out.name && out.key)  out.name = out.key;
+
+    // Ensure domain and path exist
+    if (!out.domain) out.domain = ".facebook.com";
+    if (!out.path)   out.path   = "/";
+
+    // Numeric unix-timestamp → cookie date string
+    if (typeof out.expires === "number") {
+      out.expires = new Date(out.expires * 1000).toUTCString();
+    }
+    // Missing or session-only → far future
+    if (!out.expires || out.expires === "Session") {
+      out.expires = new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toUTCString();
+    }
+
+    return out;
+  });
+}
+
+// Quick sanity-check before handing off to shadowx-fca
+function validateAppState(state) {
+  return Array.isArray(state) &&
+    state.some((c) => c.key === "c_user" || c.name === "c_user");
+}
+
 // ─── Protection System 1: Cookie Backup (30–100 minutes) ────────────────────
 function startCookieBackup(api) {
   function scheduleBackup() {
@@ -179,16 +215,30 @@ function startBot() {
     process.exit(1);
   }
 
+  // ── Normalize + validate before handing off to shadowx-fca ─────────────
+  appState = normalizeAppState(appState);
+
+  if (!validateAppState(appState)) {
+    logger.logSystem("Main", "❌ الكوكيز لا تحتوي على c_user — تحقق من صحة ملف appstate.json.", "error");
+    logger.logSystem("Main", `   الحقول الموجودة: ${appState.slice(0,3).map(c=>c.key||c.name).join(', ')} ...`, "error");
+    process.exit(1);
+  }
+
+  logger.logSystem("Main", `🍪 تم تحميل ${appState.length} كوكي — c_user موجودة ✔`);
+
   const settings = loadSettings();
 
   login({ appState }, { forceLogin: true, listenEvents: true }, (err, api) => {
     if (err) {
       logger.logSystem("Main", `فشل تسجيل الدخول: ${err.message || err}`, "error");
-      const alt = loadJSON(ALT_PATH);
-      if (alt && alt.length) {
-        logger.logSystem("Main", "إعادة المحاولة بكوكيز alt.json...", "warn");
-        saveJSON(APPSTATE_PATH, alt);
-        return setTimeout(startBot, 5000);
+      const altRaw = loadJSON(ALT_PATH);
+      if (altRaw && altRaw.length) {
+        const alt = normalizeAppState(altRaw);
+        if (validateAppState(alt)) {
+          logger.logSystem("Main", "إعادة المحاولة بكوكيز alt.json...", "warn");
+          saveJSON(APPSTATE_PATH, alt);
+          return setTimeout(startBot, 5000);
+        }
       }
       return process.exit(1);
     }
