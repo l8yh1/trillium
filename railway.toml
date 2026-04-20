@@ -1,0 +1,10 @@
+[build]
+builder = "nixpacks"
+
+[deploy]
+startCommand = "node Main.js"
+restartPolicyType = "always"
+restartPolicyMaxRetries = 10
+
+[environments.production]
+NODE_ENV = "production"
