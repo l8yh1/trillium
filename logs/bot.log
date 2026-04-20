@@ -1,0 +1,31 @@
+[20/04/2026 03:19:54] [Handler     ] فشل تحميل الأمر help.js: Cannot find module 'shadowx-fca'
+Require stack:
+- /home/claude/messenger-bot/Main.js
+- /home/claude/messenger-bot/commands/help.js
+- /home/claude/messenger-bot/handler.js
+- /home/claude/messenger-bot/[eval]
+[20/04/2026 03:19:54] [Handler     ] فشل تحميل الأمر lock.js: Cannot find module 'shadowx-fca'
+Require stack:
+- /home/claude/messenger-bot/Main.js
+- /home/claude/messenger-bot/commands/lock.js
+- /home/claude/messenger-bot/handler.js
+- /home/claude/messenger-bot/[eval]
+[20/04/2026 03:19:54] [Handler     ] فشل تحميل الأمر motor.js: Cannot find module 'shadowx-fca'
+Require stack:
+- /home/claude/messenger-bot/Main.js
+- /home/claude/messenger-bot/commands/motor.js
+- /home/claude/messenger-bot/handler.js
+- /home/claude/messenger-bot/[eval]
+[20/04/2026 03:19:54] [Handler     ] فشل تحميل الأمر nicknames.js: Cannot find module 'shadowx-fca'
+Require stack:
+- /home/claude/messenger-bot/Main.js
+- /home/claude/messenger-bot/commands/nicknames.js
+- /home/claude/messenger-bot/handler.js
+- /home/claude/messenger-bot/[eval]
+[20/04/2026 03:19:54] [Handler     ] فشل تحميل الأمر nm.js: Cannot find module 'shadowx-fca'
+Require stack:
+- /home/claude/messenger-bot/Main.js
+- /home/claude/messenger-bot/commands/nm.js
+- /home/claude/messenger-bot/handler.js
+- /home/claude/messenger-bot/[eval]
+[20/04/2026 03:19:54] [Handler     ] تم تحميل 3 أمر.
